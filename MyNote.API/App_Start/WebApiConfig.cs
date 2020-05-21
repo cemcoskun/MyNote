@@ -12,6 +12,13 @@ namespace MyNote.API
     {
         public static void Register(HttpConfiguration config)
         {
+            // https://stackoverflow.com/questions/7397207/json-net-error-self-referencing-loop-detected-for-type
+
+            // Web API configuration and services
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+
+            config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling
+                = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             // Web API yapılandırması ve hizmetler
             // Web API yapılandırmasını yalnızca taşıyıcı belirtecini kullanacak şekilde düzenleyin.
             config.SuppressDefaultHostAuthentication();
