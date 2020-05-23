@@ -19,7 +19,7 @@
     <header>
         <!-- Fixed navbar -->
         <nav class="navbar navbar-expand-md navbar-light fixed-top bg-light">
-            <a class="navbar-brand" href="#">Fixed navbar</a>
+            <a class="navbar-brand" href="#">My Notes</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,7 +29,6 @@
                         <a class="nav-link" href="#">Home</a>
                     </li>
                 </ul>
-
                 <ul class="navbar-nav navbar-login">
                     <li class="nav-item">
                         <a class="nav-link" href="#pills-signin">Log In</a>
@@ -38,13 +37,11 @@
                         <a class="nav-link" href="#pills-signup">Register</a>
                     </li>
                 </ul>
-
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="#">Logout</a>
                     </li>
                 </ul>
-
             </div>
         </nav>
     </header>
@@ -52,6 +49,7 @@
     <div id="page-login" class="page">
         <div id="login" class="d-flex flex-direction-column h-100">
             <!--https://codepen.io/mianzaid/pen/YBQZvg-->
+            <!--https://codepen.io/yigith/pen/qBOgvgp-->
             <div class="container m-auto">
                 <div class="col-sm-8 col-lg-6 ml-auto mr-auto">
                     <ul class="nav nav-pills nav-fill mb-1" id="pills-tab" role="tablist">
@@ -64,21 +62,20 @@
                                 <h1 class="mb-3 text-center">Login</h1>
                                 <!--<div class="text-center"><img src="https://placehold.it/80x80" class="rounded-circle border p-1"></div>-->
                                 <div class="alert message"></div>
-
                                 <form method="post" id="signinform">
                                     <input type="hidden" name="grant_type" value="password" />
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Email <span class="text-danger">*</span></label>
+                                        <label class="font-weight-bold">Email</label>
                                         <input type="email" name="username" id="signinemail" class="form-control" placeholder="E-mail" required>
                                     </div>
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Password <span class="text-danger">*</span></label>
+                                        <label class="font-weight-bold">Password</label>
                                         <input type="password" name="password" id="signinpassword" class="form-control" placeholder="Password" required>
                                     </div>
                                     <div class="form-group">
                                         <div class="row">
                                             <div class="col">
-                                                <label><input type="checkbox" id="signinrememberme"> Remember me.</label>
+                                                <label><input type="checkbox" id="signinrememberme"> Remember me</label>
                                             </div>
                                             <div class="col text-right"> <a href="#" data-toggle="modal" data-target="#forgotPass">Forgot Password?</a> </div>
                                         </div>
@@ -93,20 +90,19 @@
                             <div class="col-sm-12 border border-primary shadow rounded pt-4">
                                 <h1 class="mb-3 text-center">Register</h1>
                                 <!--<div class="text-center"><img src="https://placehold.it/80x80" class="rounded-circle border p-1"></div>-->
-                                <div id="signuperrors" class="alert alert-danger errors" style="display:none"></div>
-                                <div id="signupsuccess" class="alert alert-success success"></div>
-                                <form method="post" id="signnupform">
+                                <div class="alert message"></div>
+                                <form method="post" id="signupform">
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Email <span class="text-danger">*</span></label>
+                                        <label class="font-weight-bold">Email</label>
                                         <input type="email" name="Email" id="signupemail" class="form-control" placeholder="E-mail" required>
                                     </div>
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Password <span class="text-danger">*</span></label>
+                                        <label class="font-weight-bold">Password</label>
                                         <input type="password" name="Password" id="signuppassword" class="form-control" placeholder="Password" required>
                                     </div>
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Confirm Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="ConfirmPassword" id="signupcpassword" class="form-control" placeholder="Confirm Password" required>
+                                        <label class="font-weight-bold">Confirm Password</label>
+                                        <input type="password" name="ConfirmPassword" id="signupcpassword" class="form-control" placeholder="Password" required>
                                     </div>
                                     <div class="form-group mt-4">
                                         <input type="submit" name="signupsubmit" id="signupsubmit" value="Sign Up" class="btn btn-block btn-primary">
@@ -128,7 +124,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label>Email <span class="text-danger">*</span></label>
+                                        <label>Email</label>
                                         <input type="email" name="forgotemail" id="forgotemail" class="form-control" placeholder="Enter your valid email..." required>
                                     </div>
                                     <div class="form-group">
@@ -148,7 +144,7 @@
 
     <div id="page-app" class="page">
         <h1>Uygulama</h1>
-        <p>Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme Deneme </p>
+        <p>Tincidunt integer eu augue augue nunc elit dolor, luctus placerat scelerisque euismod, iaculis eu lacus nunc mi elit, vehicula ut laoreet ac, aliquam sit amet justo nunc tempor, metus vel.</p>
     </div>
 
     <script src="Scripts/jquery-3.5.1.min.js"></script>
