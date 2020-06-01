@@ -1,4 +1,5 @@
-﻿var apiUrl = "http://localhost:44385/";
+﻿//var apiUrl = "http://localhost:44385/";
+var apiUrl = "https://mynoteapi.cemcoskun.site/";
 
 var selectedNote = null;
 var selectedLink = null;
