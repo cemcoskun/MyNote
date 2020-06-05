@@ -1,5 +1,5 @@
 ﻿// AngularJs Version
-var apiUrl = "https://mynoteapi.kod.fun/";
+var apiUrl = "http://localhost:44385/";
 var app = angular.module("myApp", ["ngRoute"]);
 
 app.directive("messages", function () {
@@ -12,9 +12,52 @@ app.config(function ($routeProvider) {
     $routeProvider
         .when("/", { templateUrl: "pages/app.html", controller: "appController" })
         .when("/login", { templateUrl: "pages/login.html", controller: "loginController" });
-});
+})
+    .run(function ($rootScope, $location) {
 
-app.controller("mainController", function ($scope, $http) {
+        $rootScope.update = function (srcObj, destObj) {
+            for (var key in destObj) {
+                if (destObj.hasOwnProperty(key) && srcObj.hasOwnProperty(key)) {
+                    destObj[key] = srcObj[key];
+                }
+            }
+        }
+
+        // https://stackoverflow.com/questions/11541695/redirecting-to-a-certain-route-based-on-condition/11542936#11542936
+        $rootScope.loginData = function () {
+            var loginDataJson = localStorage["login"] || sessionStorage["login"];
+
+            if (!loginDataJson) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(loginDataJson);
+            } catch (e) {
+                return null;
+            }
+        };
+
+        $rootScope.isLoggedIn = function () {
+            if ($rootScope.loginData()) {
+                return true;
+            }
+            return false;
+        };
+
+        // register listener to watch route changes
+        $rootScope.$on("$routeChangeStart", function (event, next, current) {
+            if ($rootScope.loginData() == null) {
+                // no logged user, we should be going to #login
+                if (next.templateUrl != "pages/login.html") {
+                    // not going to #login, we should redirect now
+                    $location.path("/login");
+                }
+            }
+        });
+    });
+
+app.controller("mainController", function ($scope, $http, $location) {
 
     $scope.isLoading = false;
 
@@ -26,19 +69,6 @@ app.controller("mainController", function ($scope, $http) {
         $scope.isLoading = false;
     };
 
-    $scope.loginData = function () {
-        var loginDataJson = localStorage["login"] | sessionStorage["login"];
-
-        if (!loginDataJson) {
-            return null;
-        }
-
-        try {
-            return JSON.parse(loginDataJson);
-        } catch (e) {
-            return null;
-        }
-    };
 
     $scope.token = function () {
         var loginData = $scope.loginData();
@@ -49,7 +79,13 @@ app.controller("mainController", function ($scope, $http) {
 
         return loginData.access_token;
     };
-    
+
+    $scope.logout = function () {
+        localStorage.removeItem("login");
+        sessionStorage.removeItem("login");
+        $location.path("/login");
+    };
+
     $scope.ajax = function (apiUri, method, data, isAuth, successFunc, errorFunc) {
         $scope.showLoading();
         var headers = null;
@@ -75,24 +111,27 @@ app.controller("mainController", function ($scope, $http) {
     };
 
     $scope.checkAuth = function () {
-        var tokenJson = localStorage["token"] | sessionStorage["token"];
-
-        if (!tokenJson) {
-            // display login/register view
-            console.log("giriş yapılmamış..");
-            return;
+        if ($scope.loginData()) {
+            $scope.ajax("api/Account/UserInfo", "GET", null, true,
+                function (response) {
+                    if (response.data.Email != $scope.loginData().userName) {
+                        $scope.logout();
+                    }
+                },
+                function (response) {
+                    if (response.status == 401) {
+                        $scope.logout();
+                    }
+                }
+            );
         }
-
-        // check if token is valid
-
-        // display app view
     };
 
 
     $scope.checkAuth();
 });
 
-app.controller("loginController", function ($scope, $http) {
+app.controller("loginController", function ($scope, $timeout, $location, $httpParamSerializer) {
 
     $scope.currentTab = "login"; // login | register
     $scope.messageFor = "login"; // login | register
@@ -124,6 +163,9 @@ app.controller("loginController", function ($scope, $http) {
                 }
             }
         }
+        if (data.error_description) {
+            $scope.messages.push(data.error_description);
+        }
     };
 
     $scope.success = function (message) {
@@ -153,25 +195,138 @@ app.controller("loginController", function ($scope, $http) {
 
     $scope.registerSubmit = function () {
         $scope.ajax("api/Account/Register", "post", $scope.registerForm, false,
-        
+
             function (response) {
                 $scope.resetRegisterForm();
                 $scope.success("Your account has been successfully created.");
-                $scope.hideLoading();
             },
             function (response) {
                 $scope.error(response.data);
-                $scope.hideLoading();
             });
     };
 
     $scope.loginSubmit = function () {
-
+        $scope.ajax("Token", "post", $httpParamSerializer($scope.loginForm), false,
+            function (response) {
+                localStorage.removeItem("login");
+                sessionStorage.removeItem("login");
+                var storage = $scope.rememberMe ? localStorage : sessionStorage;
+                storage["login"] = JSON.stringify(response.data);
+                $scope.resetLoginrForm();
+                $scope.success("Your login is successful. Redirecting...");
+                $timeout(function () {
+                    $location.path("/");
+                }, 1000);
+            },
+            function (response) {
+                console.log(response);
+                $scope.error(response.data);
+            });
     };
 });
 
-app.controller("appController", function ($scope, $location) {
-    $location.path("/login"); // sonra sil
+app.controller("appController", function ($scope) {
+    $scope.notes = [];
+    $scope.currentNote = null;
+    $scope.noteForm = {
+        Id: null,
+        Title: "",
+        Content: "",
+        CreationTime: "",
+        ModificationTime: ""
+    };
+
+    $scope.getNotes = function () {
+        $scope.ajax("api/Notes/List", "GET", null, true,
+            function (response) {
+                $scope.notes = response.data;
+            },
+            function (response) {
+
+            }
+        );
+    };
+
+    $scope.showNote = function (event, note) {
+        if (event) {
+            event.preventDefault();
+        }
+        $scope.currentNote = note;
+        $scope.noteForm = angular.copy(note);
+    };
+
+    $scope.putNote = function () {
+        var data = {
+            Id: $scope.noteForm.Id,
+            Title: $scope.noteForm.Title,
+            Content: $scope.noteForm.Content,
+        };
+        $scope.ajax("api/Notes/Update/" + data.Id, "PUT", data, true,
+            function (response) {
+                $scope.update(response.data, $scope.currentNote);
+            },
+            function (response) {
+
+            }
+        );
+    };
+
+    $scope.postNote = function () {
+        var data = {
+            Title: $scope.noteForm.Title,
+            Content: $scope.noteForm.Content,
+        };
+        $scope.ajax("api/Notes/New", "POST", data, true,
+            function (response) {
+                $scope.notes.push(response.data);
+                $scope.showNote(null, response.data);
+            },
+            function (response) {
+
+            }
+        );
+    };
+
+    $scope.submitNote = function () {
+        if ($scope.currentNote) {
+            $scope.putNote();
+        } else {
+            $scope.postNote();
+        }
+    };
+
+    $scope.newNote = function () {
+        $scope.currentNote = null;
+        $scope.noteForm = {
+            Id: null,
+            Title: "",
+            Content: "",
+            CreationTime: "",
+            ModificationTime: ""
+        };
+        document.getElementById("title").focus();
+    };
+
+    $scope.deleteNote = function () {
+        if ($scope.currentNote) {
+            $scope.ajax("api/Notes/Delete/" + $scope.currentNote.Id, "DELETE", null, true,
+                function (response) {
+                    for (var i = 0; i < $scope.notes.length; i++) {
+                        if ($scope.notes[i] == $scope.currentNote) {
+                            $scope.notes.splice(i, 1);
+                            $scope.newNote();
+                            return;
+                        }
+                    }
+                },
+                function (response) {
+
+                }
+            );
+        }
+    };
+
+    $scope.getNotes();
 });
 
 // JQuery Document Ready
